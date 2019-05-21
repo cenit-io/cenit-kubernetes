@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cenit-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      platform: cenit
+  template:
+    metadata:
+      labels:
+        platform: cenit
+    spec:
+      containers:
+      - name: cenit
+        image: alejandro92/cenit:1.0.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
