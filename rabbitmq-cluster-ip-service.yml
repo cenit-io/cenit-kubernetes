@@ -3,10 +3,13 @@ kind: Service
 metadata:
   name: rabbitmq-cluster-ip-service
 spec:
+  type: ClusterIP
   selector:
     amqp: rabbitmq
   ports:
-  - port: 5672
+  - name: consumers-port
+    port: 5672
     targetPort: 5672
-  - port: 15672
+  - name: gui-port
+    port: 15672
     targetPort: 15672
