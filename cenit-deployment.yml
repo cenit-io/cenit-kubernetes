@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: cenit
-        image: alejandro92/cenit:1.0.0
+        image: alejandro92/cenit
         resources:
           limits:
             memory: "128Mi"
