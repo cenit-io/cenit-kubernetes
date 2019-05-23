@@ -27,4 +27,4 @@ spec:
         - containerPort: 27017
         volumeMounts:
           - name: mongo-storage
-            mountPath: /var/lib/mongo/data
+            mountPath: /data/db
