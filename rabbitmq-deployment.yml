@@ -12,9 +12,20 @@ spec:
       labels:
         amqp: rabbitmq
     spec:
+      volumes:
+        - name: rabbitmq-storage
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc
       containers:
       - name: rabbitmq
         image: rabbitmq:management
+        env:
+          - name: RABBITMQ_DEFAULT_PASS
+            value: "cenit_rabbit"
+          - name: RABBITMQ_DEFAULT_USER
+            value: "cenit_rabbit"
+          - name: RABBITMQ_DEFAULT_VHOST
+            value: "cenit_rabbit_vhost"
         resources:
           limits:
             memory: "128Mi"
@@ -22,3 +33,6 @@ spec:
         ports:
         - containerPort: 5672
         - containerPort: 15672
+        volumeMounts:
+          - name: rabbitmq-storage
+            mountPath: /var/lib/rabbitmq
