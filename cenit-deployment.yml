@@ -15,9 +15,16 @@ spec:
       containers:
       - name: cenit
         image: alejandro92/cenit
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
+        env:
+          - name: DB_PORT
+            value: mongo-cluster-ip-service
+          - name: ENABLE_RERECAPTCHA
+            value: "false"
+          - name: UNICORN_WORKERS
+            value: "5"
+          - name: MAXIMUM_UNICORN_CONSUMERS
+            value: "3"
+          - name: SKIP_MONGO_CLIENT
+            value: "false"
         ports:
         - containerPort: 8080

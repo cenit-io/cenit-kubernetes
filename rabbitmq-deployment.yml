@@ -26,10 +26,6 @@ spec:
             value: "cenit_rabbit"
           - name: RABBITMQ_DEFAULT_VHOST
             value: "cenit_rabbit_vhost"
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
         ports:
         - containerPort: 5672
         - containerPort: 15672
