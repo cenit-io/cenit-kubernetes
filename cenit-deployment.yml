@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: cenit
-        image: alejandro92/cenit
+        image: alejandro92/cenit:unicorn
         env:
           - name: DB_PORT
             value: mongo-cluster-ip-service
@@ -24,7 +24,9 @@ spec:
             value: "5"
           - name: MAXIMUM_UNICORN_CONSUMERS
             value: "3"
-          - name: SKIP_MONGO_CLIENT
-            value: "false"
+          - name: DB_PROD
+            value: "cenit_prod"
+          - name: RABBITMQ_BIGWIG_TX_URL
+            value: amqp://cenit_rabbit:cenit_rabbit@rabbitmq-cluster-ip-service/cenit_rabbit_vhost
         ports:
-        - containerPort: 8080
+        - containerPort: 80
