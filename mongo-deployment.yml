@@ -19,6 +19,10 @@ spec:
       containers:
       - name: mongodb
         image: mongo:3.2
+        resources:
+          requests:
+            memory: "1000MiB"
+            cpu: "0.5"
         ports:
         - containerPort: 27017
         volumeMounts:

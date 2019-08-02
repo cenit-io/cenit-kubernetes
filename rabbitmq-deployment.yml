@@ -19,6 +19,10 @@ spec:
       containers:
       - name: rabbitmq
         image: rabbitmq:management
+        resources:
+          requests:
+            memory: "1000MiB"
+            cpu: "0.5"
         env:
           - name: RABBITMQ_DEFAULT_PASS
             value: "cenit_rabbit"
