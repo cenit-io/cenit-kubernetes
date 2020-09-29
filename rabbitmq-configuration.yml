@@ -1,3 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-sc
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,19 +34,37 @@ spec:
       - name: rabbitmq
         image: rabbitmq:management
         resources:
-          requests:
-            memory: "1000MiB"
-            cpu: "0.5"
+          limits:
+            memory: "1Gi"
+            cpu: "350m"
         env:
           - name: RABBITMQ_DEFAULT_PASS
-            value: "cenit_rabbit"
+            value: <PASSWORD>
           - name: RABBITMQ_DEFAULT_USER
-            value: "cenit_rabbit"
+            value: <USER>
           - name: RABBITMQ_DEFAULT_VHOST
-            value: "cenit_rabbit_vhost"
+            value: <HOST>
         ports:
         - containerPort: 5672
         - containerPort: 15672
         volumeMounts:
           - name: rabbitmq-storage
             mountPath: /var/lib/rabbitmq
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    amqp: rabbitmq
+  ports:
+  - name: consumers-port
+    port: 5672
+    targetPort: 5672
+  - name: gui-port
+    port: 15672
+    targetPort: 15672
