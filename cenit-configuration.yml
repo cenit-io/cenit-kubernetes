@@ -1,0 +1,202 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cenit-deployment-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      platform: cenit-backend
+  template:
+    metadata:
+      labels:
+        platform: cenit-backend
+    spec:  
+      volumes:
+        - name: host-docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: host-volume
+          hostPath:
+            path: / 
+      imagePullSecrets:
+      - name: regcred 
+      containers:
+      - name: cenit-backend
+        image: <IMAGE>
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "4Gi"
+            cpu: "1000m"
+        volumeMounts:
+          - name: host-docker-socket
+            mountPath: /var/run/docker.sock
+          - name: host-volume
+            mountPath: /host
+            readOnly: true
+        securityContext:
+            capabilities:
+              add:
+                - SYS_PTRACE
+        command: ["bundle", "exec", "unicorn", "-c", "config/unicorn.rb"]
+        env:
+          - name: NRIA_LICENSE_KEY
+            value: 
+          - name: SKIP_DB_INITIALIZATION
+            value: "false"
+          - name: SKIP_RABBIT_MQ
+            value: "false"
+          - name: SCHEDULER_LOOKUP_INTERVAL
+            value: "4"
+          - name: UNICORN_WORKERS
+            value: "6"
+          - name: MAXIMUM_UNICORN_CONSUMERS
+            value: "6"
+          - name: LOOKUP_SCHEDULER_OFF
+            value: "false"
+          - name: LOAD_DELAYED_MESSAGES_ON_START
+            value: "true"
+          - name: REDIS_HOST
+            value: redis-cluster-ip-service
+          - name: AWS_S3_REGION
+            value:
+          - name: AWS_S3_BUCKET_PREFIX
+            value:
+          - name: AWS_ACCESS_KEY_ID
+            value:
+          - name: AWS_SECRET_ACCESS_KEY
+            value:
+          - name: DEFAULT_FILE_STORE
+            value:
+          - name: HOMEPAGE
+            value:
+          - name: DOCS_URL  
+            value:
+          - name: TENANT_CREATION_DISABLED
+            value: "true"
+          - name: GMAIL_USERNAME
+            value:
+          - name: GMAIL_PASSWORD
+            value:
+          - name: RABBITMQ_BIGWIG_TX_URL
+            value: "amqp://<USER>:<PASSWORD>@rabbitmq-cluster-ip-service/<VHOST>"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cenit-deployment-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      platform: cenit-frontend
+  template:
+    metadata:
+      labels:
+        platform: cenit-frontend
+    spec:
+      volumes:
+        - name: host-docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: host-volume
+          hostPath:
+            path: /
+      imagePullSecrets:
+      - name: regcred 
+      containers:
+      - name: cenit-frontend
+        image: <IMAGE>
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "4Gi"
+            cpu: "1000m"
+        volumeMounts:
+          - name: host-docker-socket
+            mountPath: /var/run/docker.sock
+          - name: host-volume
+            mountPath: /host
+            readOnly: true
+        securityContext:
+            capabilities:
+              add:
+                - SYS_PTRACE
+        command: ["bundle", "exec", "unicorn", "-c", "config/unicorn.rb"]
+        env:
+          - name: NRIA_LICENSE_KEY
+            value:
+          - name: ENABLE_RERECAPTCHA
+            value: "false"
+          - name:  MAXIMUM_UNICORN_CONSUMERS
+            value: "0"
+          - name: BASE_MULTIPLIER_ACTIVE_TASKS
+            value: "50"
+          - name: SCHEDULER_LOOKUP_INTERVAL
+            value: "4"
+          - name: UNICORN_WORKERS
+            value: "9"
+          - name: LOOKUP_SCHEDULER_OFF
+            value: "true"
+          - name: DELAY_TASKS
+            value: "true"
+          - name: REDIS_HOST
+            value: redis-cluster-ip-service
+          - name: AWS_S3_REGION
+            value:
+          - name: AWS_S3_BUCKET_PREFIX
+            value:
+          - name: AWS_ACCESS_KEY_ID
+            value:
+          - name: AWS_SECRET_ACCESS_KEY
+            value:
+          - name: DEFAULT_FILE_STORE
+            value:
+          - name: HOMEPAGE
+            value:
+          - name: DOCS_URL  
+            value:
+          - name: TENANT_CREATION_DISABLED
+            value: "true"
+          - name: GMAIL_USERNAME
+            value:
+          - name: GMAIL_PASSWORD
+            value:          
+        ports:
+        - containerPort: 8080          
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cenit-cluster-ip-service
+spec:
+  selector:
+    platform: cenit-frontend
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: cenit-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: 800m
+spec:
+  rules:
+  - host: <HOST>
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: cenit-cluster-ip-service
+          servicePort: 8080
