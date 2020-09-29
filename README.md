@@ -1,4 +1,4 @@
-# CENIT WITH KUBERNETES 
+# CENIT WITH KUBERNETES
 
 ![Kubernetes Logo](https://raw.githubusercontent.com/kubernetes-sigs/kubespray/master/docs/img/kubernetes-logo.png)
 
@@ -12,9 +12,9 @@ Kubernetes is a platform for managing application containers across multiple hos
 
 ### Amazon
 
-Amazon Elastic Kubernetes Service (Amazon EKS) makes it easy to deploy, manage, and scale containerized applications using [Kubernetes on AWS](https://aws.amazon.com/kubernetes). Exist two ways to create and interactuate with a Kubernetes cluster in Amazon EKS. The first is \textbf{eksctl}, a simple command line utility for creating and managing Kubernetes clusters on Amazon EKS and the second choice is Amazon EKS in the [AWS Management Console](https://docs.aws.amazon.com/en\_en/eks/latest/userguide/getting-started.html).
+Amazon Elastic Kubernetes Service (Amazon EKS) makes it easy to deploy, manage, and scale containerized applications using [Kubernetes on AWS](https://aws.amazon.com/kubernetes). Exist two ways to create and interactuate with a Kubernetes cluster in Amazon EKS. The first is **eksctl**, a simple command line utility for creating and managing Kubernetes clusters on Amazon EKS and the second choice is Amazon EKS in the [AWS Management Console](https://docs.aws.amazon.com/en\_en/eks/latest/userguide/getting-started.html).
 
-### Instaling eksctl
+### Installing eksctl
 
 To install **eksctl** first you need to install AWS Command Line Interface (AWS CLI). You can install the AWS CLI and its dependencies on most Linux distributions by using pip, a package manager for Python.
 
