@@ -23,7 +23,7 @@ spec:
       - name: regcred 
       containers:
       - name: cenit-backend
-        image: <IMAGE>
+        image: cenitgroup/cenitio:latest
         imagePullPolicy: Always
         resources:
           limits:
@@ -48,15 +48,15 @@ spec:
           - name: SKIP_RABBIT_MQ
             value: "false"
           - name: SCHEDULER_LOOKUP_INTERVAL
-            value: "4"
+            value: 
           - name: UNICORN_WORKERS
-            value: "6"
+            value:
           - name: MAXIMUM_UNICORN_CONSUMERS
-            value: "6"
+            value:
           - name: LOOKUP_SCHEDULER_OFF
-            value: "false"
+            value:
           - name: LOAD_DELAYED_MESSAGES_ON_START
-            value: "true"
+            value:
           - name: REDIS_HOST
             value: redis-cluster-ip-service
           - name: AWS_S3_REGION
@@ -74,10 +74,14 @@ spec:
           - name: DOCS_URL  
             value:
           - name: TENANT_CREATION_DISABLED
-            value: "true"
+            value:
           - name: GMAIL_USERNAME
             value:
           - name: GMAIL_PASSWORD
+            value:
+          - name: MAIL_DOMAIN
+            value:
+          - name: HOST
             value:
           - name: RABBITMQ_BIGWIG_TX_URL
             value: "amqp://<USER>:<PASSWORD>@rabbitmq-cluster-ip-service/<VHOST>"
@@ -108,7 +112,7 @@ spec:
       - name: regcred 
       containers:
       - name: cenit-frontend
-        image: <IMAGE>
+        image: cenitgroup/cenitio:frontend
         imagePullPolicy: Always
         resources:
           limits:
@@ -129,19 +133,19 @@ spec:
           - name: NRIA_LICENSE_KEY
             value:
           - name: ENABLE_RERECAPTCHA
-            value: "false"
+            value:
           - name:  MAXIMUM_UNICORN_CONSUMERS
-            value: "0"
+            value:
           - name: BASE_MULTIPLIER_ACTIVE_TASKS
-            value: "50"
+            value:
           - name: SCHEDULER_LOOKUP_INTERVAL
-            value: "4"
+            value:
           - name: UNICORN_WORKERS
-            value: "9"
+            value:
           - name: LOOKUP_SCHEDULER_OFF
-            value: "true"
+            value:
           - name: DELAY_TASKS
-            value: "true"
+            value:
           - name: REDIS_HOST
             value: redis-cluster-ip-service
           - name: AWS_S3_REGION
@@ -159,11 +163,15 @@ spec:
           - name: DOCS_URL  
             value:
           - name: TENANT_CREATION_DISABLED
-            value: "true"
+            value:
           - name: GMAIL_USERNAME
             value:
           - name: GMAIL_PASSWORD
-            value:          
+            value:
+          - name: MAIL_DOMAIN
+            value:
+          - name: HOST
+            value:
         ports:
         - containerPort: 8080          
 ---
