@@ -23,7 +23,7 @@ spec:
       - name: regcred 
       containers:
       - name: cenit-backend
-        image: cenitgroup/cenitio:latest
+        image: cenitipaas/cenit-backend:latest
         imagePullPolicy: Always
         resources:
           limits:
@@ -112,7 +112,7 @@ spec:
       - name: regcred 
       containers:
       - name: cenit-frontend
-        image: cenitgroup/cenitio:frontend
+        image: cenitipaas/cenit-frontend:latest
         imagePullPolicy: Always
         resources:
           limits:
