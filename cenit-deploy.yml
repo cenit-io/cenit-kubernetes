@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cenit-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      platform: cenit-deploy
+  template:
+    metadata:
+      labels:
+        platform: cenit-deploy
+    spec:
+      volumes:
+        - name: host-docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        
+        - name: host-volume
+          hostPath:
+            path: /
+
+      containers:        
+      - name: cenit-backend
+        image: fjvigil/cenit-backend
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "750M"
+            cpu: "500m"
+        volumeMounts:
+        - name:  host-docker-socket
+          mountPath:  /var/run/docker.sock
+        - name:  host-volume
+          mountPath: /host
+          readOnly: true
+        command: ["bash", "-c","rm -fR /var/www/shared/pids/* ; bundle exec unicorn_rails -c config/unicorn.rb"]
+        env:
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP   
+        - name: SCHEDULER_LOOKUP_INTERVAL
+          value: "8"
+        - name: UNICORN_WORKERS
+          value: "4"
+        - name: MAXIMUM_UNICORN_CONSUMERS
+          value: "4"
+        - name: REDIS_HOST
+          value: 172.17.0.4:6379
+        - name: HOMEPAGE
+          value: http://localhost:3000
+        - name: MONGODB_URI
+          value: "mongodb://172.17.0.3:27017/cenit"          
+        - name: RABBITMQ_BIGWIG_TX_URL
+          value: amqp://cenit_rabbit:cenit_rabbit@172.17.0.5:15672/cenit_rabbit_vhost    
+        ports:
+        - containerPort: 8080
+
+      - name: cenit-frontend
+        image: cenitipaas/cenit-frontend:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "250M"
+            cpu: "20m"
+        volumeMounts:
+          - name: host-docker-socket
+            mountPath: /var/run/docker.sock
+          - name: host-volume
+            mountPath: /host
+            readOnly: true
+        securityContext:
+            capabilities:
+              add:
+                - SYS_PTRACE
+        #command: ["bundle", "exec", "unicorn", "-c", "config/unicorn.rb"]
+        env:
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP          
+        - name: REACT_APP_LOCALHOST
+          value: http://localhost:3002
+
+        - name: REACT_APP_CENIT_HOST
+          value: http://localhost:3000
+        - name: REACT_APP_USE_ENVIRONMENT_CONFIG
+          value: "false"
+        - name: REACT_APP_TIMEOUT_SPAN
+          value: "300000"
+        - name: REACT_APP_APP_ID
+          value: "admin"    
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 20  
+        ports:
+        - containerPort: 80      
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cenit-cluster-ip-service
+spec:
+  selector:
+    platform: cenit-deploy
+  ports:
+  - name:  frontend  
+    port:  3002
+    targetPort: 80
+    protocol: TCP
+  - name:  backend
+    port:  3000
+    targetPort: 8080
+    protocol: TCP
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: cenit-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: 800m
+spec:
+  rules:
+  - host: <HOST>
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: cenit-cluster-ip-service
+          servicePort: 8080

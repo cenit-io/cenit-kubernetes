@@ -35,15 +35,15 @@ spec:
         image: rabbitmq:management
         resources:
           limits:
-            memory: "1Gi"
-            cpu: "350m"
+            cpu: "20m"
+            memory: "250M"
         env:
           - name: RABBITMQ_DEFAULT_PASS
-            value: <PASSWORD>
+            value: "cenit_rabbit"
           - name: RABBITMQ_DEFAULT_USER
-            value: <USER>
+            value: "cenit_rabbit"
           - name: RABBITMQ_DEFAULT_VHOST
-            value: <HOST>
+            value: "cenit_rabbit_vhost"
         ports:
         - containerPort: 5672
         - containerPort: 15672
